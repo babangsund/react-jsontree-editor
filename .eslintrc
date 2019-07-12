@@ -1,0 +1,22 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["plugin:react/recommended", "eslint:recommended", "prettier", "prettier/react"],
+  "plugins": ["react", "react-hooks", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2016,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true,
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
