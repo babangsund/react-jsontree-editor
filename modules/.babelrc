@@ -1,6 +1,5 @@
 {
+  "ignore": ["node_modules/**"],
   "presets": ["@babel/env", "@babel/react"],
-  "plugins": [
-    "@babel/plugin-proposal-optional-chaining",
-  ]
+  "plugins": ["@babel/plugin-proposal-optional-chaining"]
 }

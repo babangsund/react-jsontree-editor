@@ -3,9 +3,7 @@ node_modules/
 jspm_packages/
 
 # Builds
-cjs/
-esm/
-umd/
+dist/
 
 # Logs
 logs
