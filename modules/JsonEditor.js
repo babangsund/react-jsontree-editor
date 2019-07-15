@@ -1,9 +1,18 @@
+// @flow
 import { set, cloneDeep } from "lodash-es"
 import HTML5Backend from "react-dnd-html5-backend"
 import React, { useReducer, useCallback } from "react"
 import { DndProvider, useDrop, useDrag } from "react-dnd"
 
-function historyReducer({ past, present, future }, action) {
+type JsonType = {
+  label: string,
+  items: Array<JsonType>
+}
+
+function historyReducer(
+  { past, present, future }: { past: Array<JsonType>, future: Array<JsonType>, present: JsonType },
+  action: any
+) {
   switch (action) {
     case "UNDO": {
       return {
@@ -32,7 +41,7 @@ function historyReducer({ past, present, future }, action) {
     }
   }
 }
-function useHistory(initialTree) {
+function useHistory(initialTree): [JsonType, ((JsonType => JsonType) | JsonType | string) => void] {
   const [{ present }, dispatch] = React.useReducer(historyReducer, {
     past: [cloneDeep(initialTree)],
     present: initialTree,
@@ -41,7 +50,7 @@ function useHistory(initialTree) {
   return [present, dispatch]
 }
 
-function JsonEditor({ jsonTree }) {
+function JsonEditor({ jsonTree }: { jsonTree: JsonType }) {
   const [tree, setTree] = useHistory(jsonTree)
 
   return (
@@ -53,8 +62,18 @@ function JsonEditor({ jsonTree }) {
   )
 }
 
-function JsonTree({ node, parentPath, index = 0, onTreeChange }) {
-  const { label, items } = node
+function JsonTree({
+  node,
+  parentPath,
+  index = 0,
+  onTreeChange
+}: {
+  node: JsonType,
+  index?: number,
+  onTreeChange: any => void,
+  parentPath?: Array<number | string>
+}) {
+  const { label, items }: { label: string, items: Array<JsonType> } = node
 
   const [isOpen, toggle] = useReducer(bool => !bool, false)
   const path = !parentPath ? [] : [...parentPath, "items", index]
@@ -114,7 +133,7 @@ function JsonTree({ node, parentPath, index = 0, onTreeChange }) {
       <div onClick={toggle}>{label}</div>
       {isOpen && (
         <div style={{ paddingLeft: 16 }}>
-          {items?.map((node, index) => (
+          {(items || []).map((node, index) => (
             <JsonTree
               node={node}
               index={index}
