@@ -6,18 +6,23 @@ import resolve from "rollup-plugin-node-resolve"
 import pkg from "./package.json"
 
 const input = "modules/index.js"
-const globals = { react: "React" }
-const external = Object.keys(globals)
+const globals = {
+  react: "React",
+  "lodash-es": "_",
+  "react-dnd": "ReactDnd",
+  "react-dnd-html5-backend": "HTML5Backend"
+}
+const external = Object.keys(globals).concat("@babel/runtime")
 
 const esm = {
   input,
   external,
-  output: { format: "esm", file: `dist/esm/${pkg.name}.js`, globals },
+  output: { globals, format: "esm", file: `dist/esm/${pkg.name}.js` },
   plugins: [
+    resolve(),
     babel({
       runtimeHelpers: true,
-      exclude: /node_modules/,
-      plugins: [["@babel/transform-runtime"]]
+      plugins: [["@babel/transform-runtime", { useESModules: true }]]
     })
   ]
 }
