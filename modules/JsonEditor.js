@@ -1,63 +1,17 @@
 // @flow
-import { set, cloneDeep } from "lodash-es"
+import { set } from "lodash-es"
 import HTML5Backend from "react-dnd-html5-backend"
 import React, { useReducer, useCallback } from "react"
 import { DndProvider, useDrop, useDrag } from "react-dnd"
 
-type JsonType = {
-  label: string,
-  items: Array<JsonType>
-}
+import type { JsonType, DispatchType } from "./types"
+import { JsonContext, DispatchContext } from "./context"
 
-function historyReducer(
-  { past, present, future }: { past: Array<JsonType>, future: Array<JsonType>, present: JsonType },
-  action: any
-) {
-  switch (action) {
-    case "UNDO": {
-      return {
-        future: [...future, cloneDeep(present)],
-        past: past.slice(0, past.length - 1),
-        present: past[past.length - 1]
-      }
-    }
-    case "REDO": {
-      const newPast = [...past, cloneDeep(present)]
-      const [newPresent, ...newFuture] = future
-      return {
-        past: newPast,
-        future: newFuture,
-        present: newPresent
-      }
-    }
-    default: {
-      const newPast = [...past, cloneDeep(present)]
-      const newPresent = action(present)
-      return {
-        future: [],
-        past: newPast,
-        present: newPresent
-      }
-    }
-  }
-}
-function useHistory(initialTree): [JsonType, ((JsonType => JsonType) | JsonType | string) => void] {
-  const [{ present }, dispatch] = React.useReducer(historyReducer, {
-    past: [cloneDeep(initialTree)],
-    present: initialTree,
-    future: []
-  })
-  return [present, dispatch]
-}
-
-function JsonEditor({ jsonTree }: { jsonTree: JsonType }) {
-  const [tree, setTree] = useHistory(jsonTree)
-
+function JsonEditor() {
+  const node = React.useContext(JsonContext)
   return (
     <DndProvider backend={HTML5Backend}>
-      <div onClick={() => setTree("UNDO")}>undo</div>
-      <div onClick={() => setTree("REDO")}>redo</div>
-      <JsonTree node={tree} onTreeChange={setTree} />
+      <JsonTree node={node} />
     </DndProvider>
   )
 }
@@ -65,14 +19,13 @@ function JsonEditor({ jsonTree }: { jsonTree: JsonType }) {
 function JsonTree({
   node,
   parentPath,
-  index = 0,
-  onTreeChange
+  index = 0
 }: {
   node: JsonType,
   index?: number,
-  onTreeChange: any => void,
   parentPath?: Array<number | string>
 }) {
+  const dispatch: DispatchType = React.useContext(DispatchContext)
   const { label, items }: { label: string, items: Array<JsonType> } = node
 
   const [isOpen, toggle] = useReducer(bool => !bool, false)
@@ -92,7 +45,7 @@ function JsonTree({
     drop: (drop, monitor) => {
       if (!monitor.didDrop()) {
         const target = item
-        onTreeChange(tree => {
+        dispatch(tree => {
           let copy = Object.assign({}, tree)
           set(copy, drop.path, target)
           set(copy, target.path, drop)
@@ -134,13 +87,7 @@ function JsonTree({
       {isOpen && (
         <div style={{ paddingLeft: 16 }}>
           {(items || []).map((node, index) => (
-            <JsonTree
-              node={node}
-              index={index}
-              key={node.label}
-              parentPath={path}
-              onTreeChange={onTreeChange}
-            />
+            <JsonTree node={node} index={index} key={node.label} parentPath={path} />
           ))}
         </div>
       )}

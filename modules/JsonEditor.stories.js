@@ -1,37 +1,49 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
-import { JsonEditor } from "../modules"
+import { JsonProvider, JsonEditor, Undo, Redo } from "../dist/esm/react-json-editor"
 
-storiesOf("JsonEditor", module).add("default", () => (
-  <JsonEditor
-    jsonTree={{
-      label: "hello world",
+const json = {
+  label: "hello world",
+  items: [
+    {
+      label: "First",
       items: [
         {
-          label: "First",
-          items: [
-            {
-              label: "First-Second"
-            }
-          ]
-        },
-        {
-          label: "Second",
-          items: [
-            {
-              label: "Second-Second"
-            }
-          ]
-        },
-        {
-          label: "Third",
-          items: [
-            {
-              label: "Third-Second"
-            }
-          ]
+          label: "First-Second"
         }
       ]
-    }}
-  />
-))
+    },
+    {
+      label: "Second",
+      items: [
+        {
+          label: "Second-Second"
+        }
+      ]
+    },
+    {
+      label: "Third",
+      items: [
+        {
+          label: "Third-Second"
+        }
+      ]
+    }
+  ]
+}
+
+storiesOf("JsonEditor", module)
+  .add("default", () => (
+    <div>
+      <JsonProvider json={json}>
+        <Undo />
+        <Redo />
+        <JsonEditor />
+      </JsonProvider>
+    </div>
+  ))
+  .add("without history", () => (
+    <JsonProvider json={json}>
+      <JsonEditor />
+    </JsonProvider>
+  ))
