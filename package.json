@@ -4,7 +4,7 @@
   "main": "index.js",
   "author": "babangsund",
   "name": "react-json-editor",
-  "module": "esm/react-json-editor.js",
+  "module": "dist/esm/react-json-editor.js",
   "description": "A JSON editor built with React",
   "scripts": {
     "build": "rollup -c",
