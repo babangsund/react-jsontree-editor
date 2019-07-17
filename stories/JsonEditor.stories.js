@@ -1,6 +1,6 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
-import { JsonProvider, JsonEditor, Undo, Redo } from "../dist/esm/react-json-editor"
+import { JsonProvider, JsonEditor, Undo, Redo } from "../dist/index.esm.js"
 
 const json = {
   label: "hello world",

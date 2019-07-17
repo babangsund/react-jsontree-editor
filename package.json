@@ -1,14 +1,14 @@
 {
   "license": "MIT",
   "version": "0.1.0",
-  "main": "index.js",
   "author": "babangsund",
+  "main": "dist/index.js",
   "name": "react-json-editor",
-  "module": "dist/esm/react-json-editor.js",
+  "module": "dist/index.esm.js",
   "description": "A JSON editor built with React",
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
+    "build": "NODE_ENV=production rollup -c",
+    "watch": "NODE_ENV=development rollup -c -w",
     "storybook": "start-storybook"
   },
   "keywords": [
@@ -17,8 +17,7 @@
     "editor"
   ],
   "files": [
-    "dist/*",
-    "index.js"
+    "dist/*"
   ],
   "peerDependencies": {
     "react": "^16.8.6"
@@ -53,6 +52,6 @@
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-uglify": "^6.0.2"
+    "rollup-plugin-terser": "^5.1.1"
   }
 }

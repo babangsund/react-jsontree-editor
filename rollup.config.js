@@ -1,11 +1,11 @@
 import babel from "rollup-plugin-babel"
-import { uglify } from "rollup-plugin-uglify"
+import { terser } from "rollup-plugin-terser"
 import commonjs from "rollup-plugin-commonjs"
-import resolve from "rollup-plugin-node-resolve"
+import nodeResolve from "rollup-plugin-node-resolve"
 
 import pkg from "./package.json"
 
-const input = "modules/index.js"
+const input = "src/index.js"
 const globals = {
   react: "React",
   "lodash-es": "_",
@@ -14,74 +14,50 @@ const globals = {
 }
 const external = Object.keys(globals).concat("@babel/runtime")
 
-const esm = {
-  input,
-  external,
-  output: { globals, format: "esm", file: `dist/esm/${pkg.name}.js` },
-  plugins: [
-    resolve(),
+const base = { input, external }
+
+function makePlugins(minify, useESModules) {
+  return [
     babel({
       runtimeHelpers: true,
-      plugins: [["@babel/transform-runtime", { useESModules: true }]]
-    })
+      exclude: "node_modules/**",
+      plugins: [["@babel/transform-runtime", { useESModules }]]
+    }),
+    nodeResolve(),
+    commonjs(),
+    minify && terser()
   ]
 }
 
-const cjs = {
-  input,
-  external,
-  output: { file: `dist/cjs/${pkg.name}.production.js`, format: "cjs" },
-  plugins: [babel(), uglify()]
+const esm = {
+  ...base,
+  output: {
+    globals,
+    format: "esm",
+    file: pkg.module
+  },
+  plugins: makePlugins(false, true)
 }
 
-const umd = [
-  {
-    input,
-    output: {
-      globals,
-      format: "umd",
-      name: "ReactJsonEditor",
-      file: `dist/umd/${pkg.name}.development.js`
-    },
-    external,
-    plugins: [
-      babel({
-        runtimeHelpers: true,
-        plugins: [["@babel/transform-runtime", { useESModules: true }]]
-      }),
-      resolve(),
-      commonjs({
-        include: /node_modules/,
-        namedExports: {
-          "node_modules/react-is/index.js": ["isValidElementType"]
-        }
-      })
-    ]
+const cjs = {
+  ...base,
+  output: {
+    globals,
+    format: "cjs",
+    file: pkg.main
   },
-  {
-    input,
-    output: {
-      globals,
-      format: "umd",
-      name: "ReactJsonEditor",
-      file: `dist/umd/${pkg.name}.production.js`
-    },
-    external,
-    plugins: [
-      babel({
-        runtimeHelpers: true,
-        plugins: [["@babel/transform-runtime", { useESModules: true }]]
-      }),
-      resolve(),
-      commonjs({
-        include: /node_modules/,
-        namedExports: {
-          "node_modules/react-is/index.js": ["isValidElementType"]
-        }
-      }),
-      uglify()
-    ]
-  }
-]
+  plugins: makePlugins(true, false)
+}
 
-export default [...umd, cjs, esm]
+const umd = {
+  ...base,
+  output: {
+    globals,
+    format: "umd",
+    name: "ReactJsonEditor",
+    file: `dist/index.umd.${process.env.NODE_ENV}.js`
+  },
+  plugins: makePlugins(process.env.NODE_ENV === "production", true)
+}
+
+export default [umd, cjs, esm]
