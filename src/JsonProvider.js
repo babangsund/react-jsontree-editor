@@ -7,22 +7,26 @@ import type { JsonType, DispatchType } from "./types"
 import { DispatchContext, JsonContext } from "./context"
 
 type ReducerProps = {
+  present: JsonType,
   past: Array<JsonType>,
-  future: Array<JsonType>,
-  present: JsonType
+  future: Array<JsonType>
 }
 
-function historyReducer({ past, present, future }: ReducerProps, action: any) {
+function historyReducer(state: ReducerProps, action: any) {
+  const { past, present, future } = state
+  const previous = cloneDeep(present)
   switch (action) {
     case "UNDO": {
+      if (!past.length) return state
       return {
-        future: [...future, cloneDeep(present)],
+        future: [...future, previous],
         past: past.slice(0, past.length - 1),
         present: past[past.length - 1]
       }
     }
     case "REDO": {
-      const newPast = [...past, cloneDeep(present)]
+      if (!future.length) return state
+      const newPast = [...past, previous]
       const [newPresent, ...newFuture] = future
       return {
         past: newPast,
@@ -31,7 +35,7 @@ function historyReducer({ past, present, future }: ReducerProps, action: any) {
       }
     }
     default: {
-      const newPast = [...past, cloneDeep(present)]
+      const newPast = [...past, previous]
       const newPresent = action(present)
       return {
         future: [],
