@@ -1,6 +1,6 @@
 import React from "react"
 import { storiesOf } from "@storybook/react"
-import { JsonProvider, JsonEditor, useRedo, useUndo, useJson } from "../dist/index.esm.js"
+import { useHistory, JsonEditor } from "../dist/index.esm.js"
 
 const data = {
   label: "hello world",
@@ -32,61 +32,22 @@ const data = {
   ]
 }
 
-function Display() {
-  const json = useJson()
-  return <pre>{JSON.stringify(json, null, 2)}</pre>
-}
-
-function Save() {
-  const json = useJson()
-  return <button onClick={() => alert("Emitted:\n" + JSON.stringify(json, null, 2))}>Save</button>
-}
-
 function History() {
-  const undo = useUndo()
-  const redo = useRedo()
+  const [json, { onChange, onUndo, onRedo }] = useHistory(data)
   return (
     <>
-      <button onClick={undo}> Undo</button>
-      <button onClick={redo}> Redo</button>
+      <button onClick={onUndo}> Undo</button>
+      <button onClick={onRedo}> Redo</button>
+      <JsonEditor node={json} onMove={onChange} />
     </>
   )
 }
 
+function Basic() {
+  const [json, onChange] = React.useState(data)
+  return <JsonEditor node={json} onMove={onChange} />
+}
+
 storiesOf("JsonEditor", module)
-  .add("Providing a JS tree", () => (
-    <JsonProvider json={data}>
-      <JsonEditor />
-    </JsonProvider>
-  ))
-  .add("Providing a JSON tree", () => (
-    <JsonProvider json={JSON.stringify(data)}>
-      <JsonEditor />
-    </JsonProvider>
-  ))
-  .add("With change history", () => (
-    <JsonProvider json={JSON.stringify(data)}>
-      <History />
-      <JsonEditor />
-    </JsonProvider>
-  ))
-  .add("With a save button", () => (
-    <JsonProvider json={JSON.stringify(data)}>
-      <Save />
-      <JsonEditor />
-    </JsonProvider>
-  ))
-  .add("Reacting to state changes", () => (
-    <JsonProvider json={JSON.stringify(data)}>
-      <JsonEditor />
-      <Display />
-    </JsonProvider>
-  ))
-  .add("All together", () => (
-    <JsonProvider json={JSON.stringify(data)}>
-      <History />
-      <Save />
-      <JsonEditor />
-      <Display />
-    </JsonProvider>
-  ))
+  .add("Providing a JS tree", () => <Basic />)
+  .add("With change history", () => <History />)

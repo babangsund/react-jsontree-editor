@@ -4,8 +4,7 @@ import { set } from "lodash-es"
 import HTML5Backend from "react-dnd-html5-backend"
 import { DndProvider, useDrop, useDrag } from "react-dnd"
 
-import type { JsonType, DispatchType } from "./types"
-import { JsonContext, DispatchContext } from "./context"
+import type { JsonType } from "./types"
 
 type DragDroppableProps = {
   isOver: boolean,
@@ -13,6 +12,8 @@ type DragDroppableProps = {
 }
 
 type Props = {
+  node: JsonType,
+  onMove: JsonType => void,
   Label: React.AbstractComponent<any>,
   Indented: React.AbstractComponent<any>,
   DragDroppable: React.AbstractComponent<DragDroppableProps>
@@ -31,14 +32,25 @@ const DefaultDragDroppable = React.forwardRef(({ isOver, canDrop, ...other }, re
 ))
 
 export function JsonEditor({
+  node,
+  onMove,
   Label = DefaultLabel,
   Indented = DefaultIndented,
   DragDroppable = DefaultDragDroppable
 }: Props) {
-  const node = React.useContext(JsonContext)
+  function onChange(fn: JsonType => JsonType) {
+    return onMove(fn(node))
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <JsonTree node={node} Label={Label} Indented={Indented} DragDroppable={DragDroppable} />
+      <JsonTree
+        node={node}
+        Label={Label}
+        onChange={onChange}
+        Indented={Indented}
+        DragDroppable={DragDroppable}
+      />
     </DndProvider>
   )
 }
@@ -46,11 +58,13 @@ export function JsonEditor({
 function JsonTree({
   node,
   Label,
+  onChange,
   Indented,
   index = 0,
   parentPath,
   DragDroppable
 }: {
+  onChange: ((JsonType) => JsonType) => void,
   node: JsonType,
   index?: number,
   parentPath?: Array<number | string>,
@@ -58,7 +72,6 @@ function JsonTree({
   Indented: React.AbstractComponent<any>,
   DragDroppable: React.AbstractComponent<DragDroppableProps>
 }) {
-  const dispatch: DispatchType = React.useContext(DispatchContext)
   const { label, items }: { label: string, items: JsonType[] } = node
 
   const [isOpen, toggle] = React.useReducer(bool => !bool, false)
@@ -77,7 +90,7 @@ function JsonTree({
     }),
     drop: ({ type, path: dropPath, ...drop }, monitor) => {
       if (!monitor.didDrop()) {
-        dispatch(tree => {
+        onChange(tree => {
           let copy = Object.assign({}, tree)
           set(copy, dropPath, node)
           set(copy, path, drop)
@@ -114,6 +127,7 @@ function JsonTree({
               Label={Label}
               key={node.label}
               parentPath={path}
+              onChange={onChange}
               Indented={Indented}
               DragDroppable={DragDroppable}
             />
