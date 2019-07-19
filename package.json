@@ -20,7 +20,7 @@
     "dist/*"
   ],
   "peerDependencies": {
-    "react": "^16.8.6"
+    "react": "^16.8.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.5.4",
