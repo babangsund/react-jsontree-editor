@@ -4,6 +4,6 @@ A JSON editor for React.
 
 ### TODO
 
-- Property editor
+- ~~property editor~~ Best left to the user
 - Copy
 - Create

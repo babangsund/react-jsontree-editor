@@ -32,6 +32,31 @@ const data = {
   ]
 }
 
+function Basic() {
+  const [json, onChange] = React.useState(data)
+  return <JsonEditor node={json} onMove={onChange} />
+}
+
+function Display() {
+  const [json, onChange] = React.useState(data)
+  return (
+    <>
+      <JsonEditor node={json} onMove={onChange} />
+      <pre>{JSON.stringify(json, null, 2)}</pre>
+    </>
+  )
+}
+
+function Save() {
+  const [json, onChange] = React.useState(data)
+  return (
+    <>
+      <button onClick={() => alert("Emitted:\n" + JSON.stringify(json, null, 2))}>Save</button>
+      <JsonEditor node={json} onMove={onChange} />
+    </>
+  )
+}
+
 function History() {
   const [json, { onChange, onUndo, onRedo }] = useHistory(data)
   return (
@@ -43,11 +68,8 @@ function History() {
   )
 }
 
-function Basic() {
-  const [json, onChange] = React.useState(data)
-  return <JsonEditor node={json} onMove={onChange} />
-}
-
 storiesOf("JsonEditor", module)
-  .add("Providing a JS tree", () => <Basic />)
+  .add("Basic", () => <Basic />)
   .add("With change history", () => <History />)
+  .add("With a raw display", () => <Display />)
+  .add("With a save button", () => <Save />)
