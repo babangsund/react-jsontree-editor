@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "author": "babangsund",
   "main": "dist/index.js",
-  "name": "react-json-editor",
+  "name": "react-jsontree-editor",
   "module": "dist/index.esm.js",
   "description": "A JSON editor built with React",
+  "homepage": "https://github.com/babangsund/react-jsontree-editor",
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "watch": "NODE_ENV=development rollup -c -w",
@@ -17,7 +18,7 @@
     "editor"
   ],
   "files": [
-    "dist/*"
+    "dist"
   ],
   "peerDependencies": {
     "react": "^16.8.0"

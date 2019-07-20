@@ -1,2 +1,2 @@
-export * from "./JsonProvider"
-export * from "./JsonEditor"
+export * from "./useHistory"
+export * from "./Editor"

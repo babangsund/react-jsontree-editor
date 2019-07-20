@@ -11,13 +11,30 @@ type DragDroppableProps = {
   canDrop: boolean
 }
 
-type Props = {
+type EditorProps = {|
+  onChange: JsonType => void
+|}
+
+type NodeProps = {|
+  index?: number,
+  parentPath?: Array<number | string>,
+  onChange: ((JsonType) => JsonType) => void
+|}
+
+type RenderNodeParameters = ({
   node: JsonType,
-  onMove: JsonType => void,
-  Label: React.AbstractComponent<any>,
-  Indented: React.AbstractComponent<any>,
+  onToggle: void => void
+}) => React.AbstractComponent<{}>
+
+type SharedProps = {|
+  style?: {},
+  node: JsonType,
+  className?: string,
+  renderNode: RenderNodeParameters,
+  Label: React.AbstractComponent<{}>,
+  Indented: React.AbstractComponent<{}>,
   DragDroppable: React.AbstractComponent<DragDroppableProps>
-}
+|}
 
 const DefaultLabel = props => <div {...props} />
 const DefaultIndented = props => <div {...props} style={{ paddingLeft: 16 }} />
@@ -31,56 +48,66 @@ const DefaultDragDroppable = React.forwardRef(({ isOver, canDrop, ...other }, re
   />
 ))
 
-export function JsonEditor({
+export function Editor({
   node,
-  onMove,
+  onChange: onMove,
   Label = DefaultLabel,
   Indented = DefaultIndented,
-  DragDroppable = DefaultDragDroppable
-}: Props) {
+  DragDroppable = DefaultDragDroppable,
+  ...props
+}: {
+  ...SharedProps,
+  ...EditorProps
+}) {
   function onChange(fn: JsonType => JsonType) {
     return onMove(fn(node))
   }
-
   return (
     <DndProvider backend={HTML5Backend}>
-      <JsonTree
+      <Node
         node={node}
         Label={Label}
         onChange={onChange}
         Indented={Indented}
         DragDroppable={DragDroppable}
+        {...props}
       />
     </DndProvider>
   )
 }
 
-function JsonTree({
+function Node({
   node,
+  style,
   Label,
   onChange,
   Indented,
+  className,
   index = 0,
   parentPath,
+  renderNode,
   DragDroppable
 }: {
-  onChange: ((JsonType) => JsonType) => void,
-  node: JsonType,
-  index?: number,
-  parentPath?: Array<number | string>,
-  Label: React.AbstractComponent<any>,
-  Indented: React.AbstractComponent<any>,
-  DragDroppable: React.AbstractComponent<DragDroppableProps>
+  ...SharedProps,
+  ...NodeProps
 }) {
-  const { label, items }: { label: string, items: JsonType[] } = node
+  const { items } = node
 
-  const [isOpen, toggle] = React.useReducer(bool => !bool, false)
+  const [isOpen, onToggle] = React.useReducer(bool => !bool, false)
   const path = !parentPath ? [] : [...parentPath, "items", index]
+
   const item = {
     ...node,
     path,
     type: "ITEM"
   }
+
+  const [, drag] = useDrag({
+    item,
+    collect: monitor => ({
+      isDragging: monitor.isDragging()
+    })
+  })
 
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: "ITEM",
@@ -100,13 +127,6 @@ function JsonTree({
     }
   })
 
-  const [, drag] = useDrag({
-    item,
-    collect: monitor => ({
-      isDragging: monitor.isDragging()
-    })
-  })
-
   const setRefs = React.useCallback(
     ref => {
       drop(ref)
@@ -116,19 +136,28 @@ function JsonTree({
   )
 
   return (
-    <DragDroppable ref={setRefs} isOver={isOver} canDrop={canDrop}>
-      <Label onClick={toggle}>{label}</Label>
+    <DragDroppable
+      ref={setRefs}
+      style={style}
+      isOver={isOver}
+      canDrop={canDrop}
+      className={className}
+    >
+      {renderNode({ node, onToggle })}
       {isOpen && (
         <Indented>
           {(items || []).map((node, index) => (
-            <JsonTree
+            <Node
               node={node}
+              key={node.id}
+              style={style}
               index={index}
               Label={Label}
-              key={node.label}
               parentPath={path}
               onChange={onChange}
               Indented={Indented}
+              className={className}
+              renderNode={renderNode}
               DragDroppable={DragDroppable}
             />
           ))}
