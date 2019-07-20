@@ -33,7 +33,11 @@ type SharedProps = {|
   renderNode: RenderNodeParameters,
   Label: React.AbstractComponent<{}>,
   Indented: React.AbstractComponent<{}>,
-  DragDroppable: React.AbstractComponent<DragDroppableProps>
+  DragDroppable: React.AbstractComponent<DragDroppableProps>,
+  shape?: {
+    id: string,
+    items: string
+  }
 |}
 
 const DefaultLabel = props => <div {...props} />
@@ -86,15 +90,19 @@ function Node({
   index = 0,
   parentPath,
   renderNode,
-  DragDroppable
+  DragDroppable,
+  shape = {
+    id: "id",
+    items: "items"
+  }
 }: {
   ...SharedProps,
   ...NodeProps
 }) {
-  const { items } = node
+  const items = node[shape.items] || []
 
   const [isOpen, onToggle] = React.useReducer(bool => !bool, false)
-  const path = !parentPath ? [] : [...parentPath, "items", index]
+  const path = !parentPath ? [] : [...parentPath, shape.items, index]
 
   const item = {
     ...node,
@@ -146,9 +154,10 @@ function Node({
       {renderNode({ node, onToggle })}
       {isOpen && (
         <Indented>
-          {(items || []).map((node, index) => (
+          {items.map((node, index) => (
             <Node
               node={node}
+              shape={shape}
               key={node.id}
               style={style}
               index={index}
