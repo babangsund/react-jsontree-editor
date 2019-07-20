@@ -20,7 +20,7 @@ export function useHistory(initial: JsonType): HistoryProviderReturns {
     past: []
   })
 
-  const previous = cloneDeep(present)
+  const previous = React.useMemo(() => cloneDeep(present), [present])
 
   const onChange = React.useCallback(
     newPresent => {
