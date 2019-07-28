@@ -143,6 +143,7 @@ type RenderNodeParameters = ({
 
 ## Credits
 
-React JSON Tree Editor is built and maintained by [**babangsund**](https://github.com/babangsund).
+React JSON Tree Editor is built and maintained by [**babangsund**](https://github.com/babangsund).  
+[@blog](https://babangsund.com/).
 [@github](https://github.com/babangsund).
 [@twitter](https://twitter.com/babangsund).
