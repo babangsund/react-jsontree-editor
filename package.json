@@ -25,8 +25,8 @@
     "react": "^16.8.0"
   },
   "dependencies": {
-    "@babel/runtime": "^7.5.4",
-    "lodash-es": "^4.17.14",
+    "@babel/runtime": "^7.0.0",
+    "lodash-es": "^4.0.0",
     "react-dnd": "^9.3.2",
     "react-dnd-html5-backend": "^9.3.2"
   },

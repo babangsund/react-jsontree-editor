@@ -1,6 +1,6 @@
 # react-jsontree-editor
 
-A JSON tree editor built with React
+A JSON tree dnd editor built with React
 
 ## Installation
 
@@ -105,45 +105,9 @@ function History() {
 
 4. Fire up storybook `npm|yarn run storybook`
 
----
-
-### This repository is flow typed
-
-#### Props
-
-```flow
-type DragDroppableProps = {
-  isOver: boolean,
-  canDrop: boolean
-}
-
-type EditorProps = {|
-  onChange: JsonType => void
-|}
-
-type NodeProps = {|
-  style?: {},
-  node: JsonType,
-  className?: string,
-  renderNode: RenderNodeParameters,
-  Label: React.AbstractComponent<{}>,
-  Indented: React.AbstractComponent<{}>,
-  DragDroppable: React.AbstractComponent<DragDroppableProps>
-|}
-```
-
-#### renderNode parameters
-
-```flow
-type RenderNodeParameters = ({
-  node: JsonType,
-  onToggle: void => void
-}) => React.AbstractComponent<{}>
-```
-
 ## Credits
 
 React JSON Tree Editor is built and maintained by [**babangsund**](https://github.com/babangsund).  
-[@blog](https://babangsund.com/).
-[@github](https://github.com/babangsund).
-[@twitter](https://twitter.com/babangsund).
+[@blog](https://babangsund.com/).  
+[@github](https://github.com/babangsund).  
+[@twitter](https://twitter.com/babangsund).  
