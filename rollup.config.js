@@ -13,51 +13,50 @@ const globals = {
   "react-dnd-html5-backend": "HTML5Backend"
 }
 const external = Object.keys(globals).concat("@babel/runtime")
+const license = {
+  output: {
+    preamble: [
+      "/**",
+      " * react-jsontree-editor v" + process.env.npm_package_version,
+      " *",
+      " * Copyright (c) 2019 babangsund",
+      " *",
+      " * This source code is licensed under the MIT license found in the",
+      " * LICENSE file in the root directory of this source tree.",
+      " */"
+    ].join("\n")
+  }
+}
 
-const base = { input, external }
-
-function makePlugins(minify, useESModules) {
-  return [
+export default {
+  input,
+  external,
+  plugins: [
     babel({
       runtimeHelpers: true,
       exclude: "node_modules/**",
-      plugins: [["@babel/transform-runtime", { useESModules }]]
+      plugins: [["@babel/transform-runtime", { useESModules: true }]]
     }),
     nodeResolve(),
     commonjs(),
-    minify && terser()
+    process.env.NODE_ENV === "production" && terser(license)
+  ],
+  output: [
+    {
+      globals,
+      format: "esm",
+      file: pkg.module
+    },
+    {
+      globals,
+      format: "cjs",
+      file: pkg.main
+    },
+    {
+      globals,
+      format: "umd",
+      name: "ReactJsonTreeEditor",
+      file: `dist/index.umd.${process.env.NODE_ENV}.js`
+    }
   ]
 }
-
-const esm = {
-  ...base,
-  output: {
-    globals,
-    format: "esm",
-    file: pkg.module
-  },
-  plugins: makePlugins(false, true)
-}
-
-const cjs = {
-  ...base,
-  output: {
-    globals,
-    format: "cjs",
-    file: pkg.main
-  },
-  plugins: makePlugins(true, false)
-}
-
-const umd = {
-  ...base,
-  output: {
-    globals,
-    format: "umd",
-    name: "ReactJsonTreeEditor",
-    file: `dist/index.umd.${process.env.NODE_ENV}.js`
-  },
-  plugins: makePlugins(process.env.NODE_ENV === "production", true)
-}
-
-export default [umd, cjs, esm]
